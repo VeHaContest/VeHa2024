@@ -295,31 +295,18 @@ Section Integrity.
   Proof.
     intros e st st'.
     intros T I1.
-    inversion T; subst.
-    - unfold integrity, updateAccess, updateSubjectAccess; simpl.
-      intros.
-      destruct (eq_dec s s0).
-      2: { apply I1. assumption. }
-      subst.
-      
-      destruct (eq_dec o o0).
-      2: { apply I1. assumption. }
-      subst.
-      
-      unfold checkRight in H6.
+    inversion T; subst;
+    unfold integrity, updateAccess, updateSubjectAccess; simpl;
+    intros;
+    destruct (eq_dec s s0);
+    try (apply I1; assumption);
+    subst;
+    destruct (eq_dec o o0);
+    try (apply I1; assumption);
+    subst.
+    - unfold checkRight in H6.
       assumption.
-    
-    - unfold integrity, updateAccess, updateSubjectAccess; simpl.
-      intros.
-      destruct (eq_dec s s0).
-      2: { apply I1. assumption. }
-      subst.
-      
-      destruct (eq_dec o o0).
-      2: { apply I1. assumption. }
-      subst.
-      
-      contradiction.
+    - contradiction.
   Qed.
 
   Lemma transitionsIntegrity : forall (es : list Event) (st st' : State),
