@@ -211,7 +211,9 @@ Definition lel {L} `{Lattice L} (a : L) (b : L) : Prop :=
 Infix "≤" := lel (at level 50).
 
 (* Задание 2 *)
-(* Instance ZLattice : Lattice Z := ... *)
+
+(* Определяем [meet] и [join] в решетке
+   Через [Z_lt_dec], чтобы упростить доказательства. *)
 
 Definition Zmeet (x y : Z) : Z :=
   match Z_lt_dec x y with
@@ -225,7 +227,9 @@ Definition Zjoin (x y : Z) : Z :=
   | right _ => x
   end.
 
-Search ({?a >= ?b} + {?b >= ?a} -> ?a = ?b).
+(* Далее доказательства придерживаются общей схемы:
+   разбираем случаи по значениям [Z_lt_dec] и используем
+   автоматику, чтобы закончить доказательства. *)
 
 Theorem ZmeetCommutative : forall a b, Zmeet a b = Zmeet b a.
 Proof with (auto with *).
@@ -243,6 +247,7 @@ Proof with (auto with *).
   try rewrite Hab...
   Qed.
 
+
 Theorem ZmeetAbsorbtive : forall a b, Zmeet a (Zjoin a b) = a.
 Proof.
   intros a b. unfold Zmeet. unfold Zjoin.
@@ -255,6 +260,9 @@ Theorem ZmeetIdempotent : forall a, Zmeet a a = a.
 Proof.
   intros a. unfold Zmeet. destruct (Z_lt_dec a a); reflexivity.
   Qed.
+
+(* Доказательства для [join] идентичны доказательствам для
+   [meet], с небольшими изменениями. *)
 
 Theorem ZjoinCommutative : forall a b, Zjoin a b = Zjoin b a.
 Proof with (auto with *).
@@ -284,6 +292,8 @@ Theorem ZjoinIdempotent : forall a, Zmeet a a = a.
 Proof.
   intros a. unfold Zmeet. destruct (Z_lt_dec a a); reflexivity.
   Qed.
+
+(* Наконец, собираем инстанс класса. *)
 
 Instance ZLattice : Lattice Z := {
   meet := Zmeet;
@@ -400,40 +410,61 @@ Lemma inode_permission_checkRight : forall (st : State nat nat Z) (mask : Z) s o
   inode_permission (subjectIntegrity st s) (objectIntegrity st o) mask = 0%Z <->
   fromMask mask ⊆ checkRight st s o.
 Proof.
-  intros st mask s o. split.
+  (* Начнем с того, что ведем в контекст аргументы,
+     и развернем часть определений. *)
+  intros st mask s o.
+  unfold inode_permission.
+  unfold subset.
+  unfold fromMask.
+  unfold checkRight.
+  remember (subjectIntegrity st s) as sint.
+  remember (objectIntegrity st o) as oint.
+  (* Далее доказываем две импликации *)
+  split; intros H.
   {
-    unfold inode_permission.
-    unfold subset.
-    unfold fromMask.
-    unfold checkRight.
-    remember (subjectIntegrity st s) as sint.
-    remember (objectIntegrity st o) as oint.
-    intros H.
+    (* Первая половина -- если [inode_permissions] возвращает 0,
+       то [checkRight] разрешает доступ субъекта к объекту. *)
+    (* разбираем случаи с разными правами. Все, кроме [arWrite],
+       тривиальные и решаются автоматикой. *)
     intros ar. destruct ar; try (auto with *).
+    (* Разворачиваем определение [fromMaskb], из
+       него получаем свидетельство того, что второй бит маски -- 1,
+       то есть запрашиваются права на запись. *)
     unfold fromMaskb. intros Htestbit.
+    (* Уточняем гипотезу о том, что функция вернула 0, этим свидетельством *)
     rewrite Htestbit in H. unfold lel.
+    (* Развернем [meet] в доказываемом утверждении, чтобы матч на [Z_lt_dec] 
+        имел одинаковую форму в [H] и в утверждении. *)
     rewrite meetCommutative.
+    (* Разбираем случаи. *)
     destruct (Z_lt_dec sint oint) eqn:Hlt.
-    - inversion H.
-    - simpl. unfold Zmeet. rewrite Hlt. reflexivity.
+    - (* Противоречивый случай, ибо имеем доказательство 0 = -13 *) inversion H. 
+    - (* Докажем равенство. *) simpl. unfold Zmeet. rewrite Hlt. reflexivity.
   }
   {
-    unfold inode_permission.
-    unfold subset.
-    unfold fromMask.
-    unfold checkRight.
-    remember (subjectIntegrity st s) as sint.
-    remember (objectIntegrity st o) as oint.
-    intros H.
+    (* Вторая половина -- если [checkRight] разрешает доступ,
+       то функция вернет 0. *)
+    (* Разбираем случаи по второму биту маски, т. е. по наличию
+       прав на запись среди запрашиваемых. *)
     destruct (Z.testbit mask 1) eqn:Hmask.
-    - specialize H with (x := arWrite). unfold fromMaskb in H.
-      specialize (H Hmask). unfold lel in H.
+    - (* Были запрошены права на запись. Специализируем гипотезу о том,
+         что [checkRight] разрешил доступ. *)
+      specialize H with (x := arWrite). unfold fromMaskb in H.
+      specialize (H Hmask).
+      (* Упростим гипотезу о выдаче прав, и приведем ее к if того же
+         вида, что и в доказываемом утверждении. *)
+      unfold lel in H.
       rewrite meetCommutative in H. simpl in H.
+      unfold Zmeet in H.
+      (* Разберем случаи результатов сравнения. *)
       destruct (Z_lt_dec sint oint) eqn:Hlt.
-      + unfold Zmeet in H. rewrite Hlt in H.
+      + (* Противоречие в предположениях: [sint < oint] и [sint = oint].
+           Решим автоматикой. *)
         auto with *.
-      + reflexivity.
-    - reflexivity.
+      + (* Тривиальный случай. *)
+        reflexivity.
+    - (* Если права на запись не запрашиваются. то функция вернет 0,
+         и доказательство тривиальное *) reflexivity.
   }
   Qed.
 
