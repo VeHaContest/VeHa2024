@@ -129,7 +129,10 @@ Definition eaccess : Z := 13.
 
 (* Задание 1 *)
 
-(* Definition inode_permission (tsec_ilev : Z) (isec_ilev : Z) (mask : Z) : Z := ... *)
+Definition inode_permission (tsec_ilev : Z) (isec_ilev : Z) (mask : Z) : Z := 
+  if andb (Z.testbit mask 1) (tsec_ilev <? isec_ilev)%Z
+  then -eaccess 
+  else 0.
 
 (** * Subset and union *)
 
@@ -199,7 +202,20 @@ Infix "≤" := lel (at level 50).
 
 (* Задание 2 *)
 
-(* Instance ZLattice : Lattice Z := ... *)
+Instance ZLattice : Lattice Z := {
+  meet := Z.min;
+  join := Z.max;
+
+  meetCommutative := Z.min_comm;
+  meetAssociative := Z.min_assoc;
+  meetAbsorptive := Z.max_min_absorption;
+  meetIdempotent := Z.min_id;
+
+  joinCommutative := Z.max_comm;
+  joinAssociative := Z.max_assoc;
+  joinAbsorptive := Z.min_max_absorption;
+  joinIdempotent := Z.max_id;
+}.
 
 (** * Model *)
 
@@ -274,10 +290,50 @@ Section Integrity.
   Definition integrity (st : State) : Prop :=
     forall s o, subjectAccess st s o aWrite -> objectIntegrity st o ≤ subjectIntegrity st s.
 
+  Lemma transitionIntegrity: forall (e: Event) (st st': State),
+    transition e st st' -> integrity st -> integrity st'.
+  Proof.
+    intros e st st'.
+    intros T I1.
+    inversion T; subst.
+    - unfold integrity, updateAccess, updateSubjectAccess; simpl.
+      intros.
+      destruct (eq_dec s s0).
+      2: { apply I1. assumption. }
+      subst.
+      
+      destruct (eq_dec o o0).
+      2: { apply I1. assumption. }
+      subst.
+      
+      unfold checkRight in H6.
+      assumption.
+    
+    - unfold integrity, updateAccess, updateSubjectAccess; simpl.
+      intros.
+      destruct (eq_dec s s0).
+      2: { apply I1. assumption. }
+      subst.
+      
+      destruct (eq_dec o o0).
+      2: { apply I1. assumption. }
+      subst.
+      
+      contradiction.
+  Qed.
+
   Lemma transitionsIntegrity : forall (es : list Event) (st st' : State),
     transitions es st st' -> integrity st -> integrity st'.
   Proof.
-  Admitted.
+    intros es st st' H_transitions.
+    induction H_transitions.
+    - tauto.
+    - intros.
+      apply transitionIntegrity with (e := e) (st := st').
+      + assumption.
+      + apply IHH_transitions.
+        assumption.
+  Qed.
 End Integrity.
 
 Arguments State : clear implicits.
@@ -297,8 +353,101 @@ Definition fromMask (mask : Z) : AccessRight -> Prop :=
 
 (* Задание 3 *)
 
+Lemma Zlattice_le_iff_Zle: forall a b,
+  a ≤ b <-> (a <= b)%Z.
+Proof.
+  intros.
+  unfold "≤", "∧".
+  unfold ZLattice.
+  split.
+  - intros.
+    symmetry in H.
+    apply Z.min_l_iff.
+    assumption.
+  - intros.
+    symmetry.
+    apply Z.min_l_iff.
+    assumption.
+Qed.
+
+Lemma if_false_eq: forall (A: Type) (cond: bool) (a b c: A),
+  (if cond then a else b) = c -> 
+  a <> c -> 
+  b = c /\ cond = false. 
+Proof.
+  intros.
+  destruct cond eqn: E.
+  - contradiction.
+  - split.
+    + assumption.
+    + reflexivity.
+Qed.
+
+Lemma inode_permission_iff: forall tsec_ilev isec_ilev mask,
+  inode_permission tsec_ilev isec_ilev mask = 0%Z
+  <->
+  Z.testbit mask 1 = false \/ (tsec_ilev <? isec_ilev)%Z = false.
+Proof. 
+  split; intros.
+  - unfold inode_permission in H.
+    apply if_false_eq in H.
+    2: { unfold "<>". intros. discriminate. } 
+    destruct H as [_ H].
+    rewrite Bool.andb_false_iff in H.
+    assumption.
+  - unfold inode_permission.
+    destruct H as [H_testbit | H_le].
+    + replace (Z.testbit mask 1) with false.
+      reflexivity.
+    + replace (tsec_ilev <? isec_ilev)%Z with false.
+      rewrite Bool.andb_false_r.
+      reflexivity.
+Qed.
+
+Lemma checkRight_iff: forall (st : State nat nat Z) (mask : Z) s o,
+  fromMask mask ⊆ checkRight st s o 
+  <-> 
+  Z.testbit mask 1 = false \/ (subjectIntegrity st s <? objectIntegrity st o)%Z = false.
+Proof.
+  Opaque Z.testbit.
+
+  split.
+  - intros. 
+    unfold fromMask, fromMaskb, checkRight, "⊆" in H.
+    specialize H with arWrite.
+    simpl in H.
+    rewrite Zlattice_le_iff_Zle in H.
+    rewrite <- Z.ltb_ge in H.
+    
+    destruct (Z.testbit mask 1) eqn: E.
+    2: { left. reflexivity. }
+    right.
+    apply H.
+    reflexivity.
+
+  - intros.
+    unfold fromMask, checkRight, "⊆".
+    intros accessRight H_accessRight.
+    destruct accessRight; try (apply I).
+    
+    unfold fromMaskb in H_accessRight.
+    destruct H as [H_testbit_false | H_le_false].
+    + rewrite H_accessRight in H_testbit_false.
+      discriminate.
+    + apply Zlattice_le_iff_Zle.
+      apply Z.ltb_ge in H_le_false.
+      assumption.
+Qed.
+
 Lemma inode_permission_checkRight : forall (st : State nat nat Z) (mask : Z) s o,
   inode_permission (subjectIntegrity st s) (objectIntegrity st o) mask = 0%Z <->
   fromMask mask ⊆ checkRight st s o.
 Proof.
-Admitted.
+  intros.
+  eapply iff_trans.
+  - apply inode_permission_iff.
+  - symmetry.
+    apply checkRight_iff.
+Qed.
+
+Print Assumptions inode_permission_checkRight.
