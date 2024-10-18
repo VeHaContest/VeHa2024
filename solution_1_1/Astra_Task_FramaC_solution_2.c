@@ -282,7 +282,15 @@ static int compute_mask(struct file *file, unsigned int cmd)
         assumes !isPublic(file);
         assumes isImportant(cmd);
         ensures \result == -NO_PERM;
+    behavior other:
+        assumes hasLabel;
+        assumes hasLevel;
+        assumes !isPublic(file);
+        assumes !isImportant(cmd);
+        assumes !isExotic(cmd);
+        ensures \result == 0 || \result == -NO_PERM;
     disjoint behaviors;
+    complete behaviors;
 */
 static int check_permission (struct file *file, unsigned int cmd)
 {
