@@ -383,10 +383,61 @@ Section Integrity.
   Definition integrity (st : State) : Prop :=
     forall s o, subjectAccess st s o aWrite -> objectIntegrity st o ≤ subjectIntegrity st s.
 
+  (* Лемма о том, что один переход не нарушает корректности состояния. *)
+  Lemma transitionIntegrity : forall (e : Event) (st st' : State),
+    transition e st st' -> integrity st -> integrity st'.
+  Proof. 
+    intros e st st' transition.
+    (* Разбираем случаи по типу перехода. *)
+    destruct transition.
+    - (* Событие [tTakeAccessWrite]. *)
+      (* Разворачиваем определния. *)
+      unfold checkRight in H6.
+      intros Hintegr.
+      unfold integrity.
+      simpl.
+      unfold updateSubjectAccess.
+      intros s0 o0.
+      (* Разбираем случаи по [eq_dec s s0] и [eq_dec o o0].
+         Часть случаев разбираются автоматикой, нам остается один. *)
+      destruct (eq_dec s s0) eqn:Heq; destruct (eq_dec o o0); auto with *.
+      (* Требуемое утверждение -- известный из [H6] факт. *)
+      subst s o.
+      intros _.
+      assumption.
+    - (* Событие [tTakeAccesNoWrite] *)
+      (* Аналогично предыдущему случаю, развернем часть определений. *)
+      intros Hintegr.
+      unfold integrity in *.
+      simpl.
+      unfold updateSubjectAccess.
+      intros s0 o0.
+      (* Аналогично разбираем случаи. Часть решаются автоматикой. *)
+      destruct (eq_dec s s0) eqn:Heq; destruct (eq_dec o o0); auto with *.
+      (* Имеем [a aWrite] и [~ (a aWrite)] -- противоречие. *)
+      contradiction.
+  Qed.  
+
   Lemma transitionsIntegrity : forall (es : list Event) (st st' : State),
     transitions es st st' -> integrity st -> integrity st'.
   Proof.
-  Admitted.
+  intros es st st' transitions.
+  (* Так как здесь имеется некоторая последовательность переходов
+     состояний системы, доказываем индукцией по этой последовательности. *)
+  induction transitions.
+  - (* Первый случай: [transitions_refl], переход из состояния в себя.
+       Поскольку состояние не меняется, доказательство тривиальное. *)
+    intros Hintegr. assumption.
+  - (* Второй случай: [transitions_next], делаем дополнительный шаг в
+       цепочке переходов. *)
+    intros Hintegr.
+    (* По предположению индукции, цепочка переходов не нарушает корректности
+       состояния. *)
+    apply IHtransitions in Hintegr.
+    (* Завершаем доказательство леммой о единичном переходе. *)
+    eapply transitionIntegrity; eassumption.
+  Qed.
+
 End Integrity.
 
 Arguments State : clear implicits.
