@@ -8,9 +8,9 @@
 ## Ожидаемые значения
 Исходя из кода и описания задачи мы решили что
 + Метод compute_mask имеет возвращаемые типы
- + 0, MAY_WRITE, MAY_READ, (MAY_READ | MAY_WRITE)
+  + 0, MAY_WRITE, MAY_READ, (MAY_READ | MAY_WRITE)
 + Метод check_permission
- + 0, -NO_PERM, -NO_ILEV, -NO_LABEL
+  + 0, -NO_PERM, -NO_ILEV, -NO_LABEL
 
 ## Ошибка
 - check_permission
