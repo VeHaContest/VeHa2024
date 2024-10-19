@@ -1,5 +1,4 @@
 Require Import List ZArith.
-Require Import FunInd.
 
 (** Наша задача - формальная верификация одной из функций модуля безопасности
     ядра Linux.
