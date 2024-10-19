@@ -132,19 +132,19 @@ PDPL_T * getCurrentLabel() {
     requires \valid(file->f_inode);
     assigns \nothing;
     ensures \result == 0 || \result == MAY_WRITE || \result == MAY_READ || \result == (MAY_READ | MAY_WRITE);
-    behavior shift:
-	assumes isShift(file);
-	ensures \result == 0;
-    behavior important:
-	assumes !isShift(file) && isImportant(cmd);
-	ensures \result == MAY_WRITE;
-    behavior exotic:
-	assumes !isShift(file) && isExotic(cmd);
-	ensures \result == MAY_READ;
-    behavior other:
-	assumes !isShift(file);
-	assumes !isImportant(cmd);
-	assumes !isExotic(cmd);
+	behavior shift:
+		assumes isShift(file);
+		ensures \result == 0;
+	behavior important:
+		assumes !isShift(file) && isImportant(cmd);
+		ensures \result == MAY_WRITE;
+	behavior exotic:
+		assumes !isShift(file) && isExotic(cmd);
+		ensures \result == MAY_READ;
+	behavior other:
+		assumes !isShift(file);
+		assumes !isImportant(cmd);
+		assumes !isExotic(cmd);
     ensures \result == 0 || \result == MAY_WRITE || \result == MAY_READ || \result == (MAY_READ | MAY_WRITE);
     complete behaviors;
     disjoint behaviors;
@@ -196,39 +196,39 @@ static int compute_mask(struct file *file, unsigned int cmd)
     requires \valid(current->process);
     assigns \nothing;
     ensures \result == 0 || \result == -NO_PERM || \result == -NO_ILEV || \result == -NO_LABEL;
-    behavior no_label:
-	assumes getSecurityLabel(current) == \null;
-	ensures \result == -NO_LABEL;
-    behavior no_ilev:
-	assumes getSecurityLabel(current) != \null;
-	assumes !isMaxIlev(current);
-	ensures \result == -NO_ILEV;
-    behavior full:
-	assumes getSecurityLabel(current) != \null;
-	assumes isMaxIlev(current);
-	assumes isShift(file);
-	ensures \result == 0;
-    behavior write:
-	assumes getSecurityLabel(current) != \null;
-	assumes isMaxIlev(current);
-	assumes !isShift(file);
-	assumes currentIsFileSystemRoot;
-	assumes isImportant(cmd);
-	ensures \result == 0;
-    behavior read:
-	assumes getSecurityLabel(current) != \null;
-	assumes isMaxIlev(current);
-	assumes !isShift(file);
-	assumes !currentIsFileSystemRoot;
-	assumes isExotic(cmd);
-	ensures \result == 0;
-    behavior no_perm:
-	assumes getSecurityLabel(current) != \null;
-	assumes isMaxIlev(current);
-	assumes !isShift(file);
-	assumes !(currentIsFileSystemRoot && isImportant(cmd));
-	assumes !(!currentIsFileSystemRoot && isExotic(cmd));
-	ensures \result == -NO_PERM || \result == 0;
+	behavior no_label:
+		assumes getSecurityLabel(current) == \null;
+		ensures \result == -NO_LABEL;
+	behavior no_ilev:
+		assumes getSecurityLabel(current) != \null;
+		assumes !isMaxIlev(current);
+		ensures \result == -NO_ILEV;
+	behavior full:
+		assumes getSecurityLabel(current) != \null;
+		assumes isMaxIlev(current);
+		assumes isShift(file);
+		ensures \result == 0;
+	behavior write:
+		assumes getSecurityLabel(current) != \null;
+		assumes isMaxIlev(current);
+		assumes !isShift(file);
+		assumes currentIsFileSystemRoot;
+		assumes isImportant(cmd);
+		ensures \result == 0;
+	behavior read:
+		assumes getSecurityLabel(current) != \null;
+		assumes isMaxIlev(current);
+		assumes !isShift(file);
+		assumes !currentIsFileSystemRoot;
+		assumes isExotic(cmd);
+		ensures \result == 0;
+	behavior other:
+		assumes getSecurityLabel(current) != \null;
+		assumes isMaxIlev(current);
+		assumes !isShift(file);
+		assumes !(currentIsFileSystemRoot && isImportant(cmd));
+		assumes !(!currentIsFileSystemRoot && isExotic(cmd));
+		ensures \result == -NO_PERM || \result == 0;
     complete behaviors;
     disjoint behaviors;
 */
