@@ -1,16 +1,72 @@
-# Репозиторий для хранения результатов решений VeHa-2024 
+# Дедуктивная верификация программы, относящейся к задаче проверки выполнимости булевых формул (SAT)
 
-https://sites.google.com/view/veha2024 
+## Команда
+Егоров Анатолий Романович
+Еремина Ксения Игоревна
 
-Порядок работы:
-
-- Сделать fork данного репозитория VeHa2024 - кнопка Fork здесь на странице повыше
-- Cоздать сначала папку внутри склонинованного репозитория с именем участника/команды  такого вида:<br/>
-  <b>solution_n_name</b>, где n -- номер задачи с https://sites.google.com/view/veha2024/задачи и name -- имя участника/команды, и делать всё в ней (облегчит финальный merge)
-- Работать в своей попке в своей копии репозитория как обычно (делать коммиты)
-- Решение сопроводить презентацией основных идей решения
-- По завершении работы над задачей все закоммитить себе и сделать pull-request в оригинальный репозиторий https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork
-
-Если есть проблемы, пришлите результат в виде архива на serg_soft@mail.ru, я сам залью сюда
-
-
+## Построение инварианта цикла:
+Инвариант цикла состоит из трех частей:
+1. Ограничения на типы входных переменных. Данные ограничения позволяют обеспечить завершение цикла
+  ```
+ (integerp variable_count )
+ (integer-listp implication_graph_transitive_closure )
+ 
+ (< 0 variable_count )
+ (= (len implication_graph_transitive_closure )
+    (* 2
+        (* 2
+            (* variable_count variable_count )
+        )
+    )
+)
+```
+2. Ограничения на переменную-счетчик и тип переменной-счетчика. Эти ограничения обеспечивают условия входа в цикл, продолжения итераций цикла и выхода из цикла. 
+```
+   (integerp x)
+   (<= 0 x)
+```
+3. Ограничения на переменную-результат. Такие ограничения обеспечивают выполнение постусловия при завершении цикла.
+```
+   (implies
+    (= satisfiable 0)
+    (and
+        (and
+            (=
+                (nth
+                    (+
+                        x
+                        variable_count
+                        (*
+                            x
+                            2
+                            variable_count
+                        )
+                    )
+                    implication_graph_transitive_closure
+                )
+                1
+            )
+            (=
+                (nth
+                    (+
+                        (*
+                            x
+                            2
+                            variable_count
+                        )
+                        x
+                        (*
+                            variable_count
+                            2
+                            variable_count
+                        )
+                    )
+                    implication_graph_transitive_closure
+                )
+                1
+            )
+        )
+        (< x variable_count )
+    )
+)
+```
