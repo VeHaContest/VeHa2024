@@ -38,3 +38,6 @@ _Количество процессов_: 4
 Мы постарались изобразить упрощённый концепт взаимодействия Warp на SM. Он представлен на диаграмме:
 ![Blank board(5)](https://github.com/user-attachments/assets/b29133eb-7318-4b72-87c7-433ff8fd47d9)
 
+Вот UML:   
+![Blank board(6)](https://github.com/user-attachments/assets/954a722a-d543-4f11-a72c-14eb6e12d18c)
+
