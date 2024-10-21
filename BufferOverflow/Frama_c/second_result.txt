@@ -1,0 +1,264 @@
+[wp] Proved goals:   85 / 85
+  Terminating:       3
+  Unreachable:       3
+  Qed:              52 (0.63ms-12ms-111ms)
+  Alt-Ergo 2.6.0:   27 (14ms-25ms-56ms)
+[wp] with_sol.c:148: Warning: 
+  Memory model hypotheses for function 'getCurrentLabel':
+  /*@ behavior wp_typed:
+        ensures /* ip:217 */\separated(\result, &current); */
+  PDPL_T *getCurrentLabel(void);
+[wp] with_sol.c:185: Warning: 
+  Memory model hypotheses for function 'compute_mask':
+  /*@
+     behavior wp_typed:
+       requires
+         /* ip:218 */\separated(
+                       file + (..),
+                       (unsigned int const (*)[2])event_numbers + (..)
+                       );
+     */
+  static int compute_mask(struct file *file, unsigned int cmd);
+[wp] with_sol.c:289: Warning: 
+  Memory model hypotheses for function 'check_permission':
+  /*@
+     behavior wp_typed:
+       requires
+         /* ip:219 */\separated(
+                       file + (..),
+                       (unsigned int const (*)[2])event_numbers + (..),
+                       &current, &max_ilev
+                       );
+     */
+  static int check_permission(struct file *file, unsigned int cmd);
+[report] Computing properties status...
+--------------------------------------------------------------------------------
+--- Global Properties
+--------------------------------------------------------------------------------
+
+[  Valid  ] Axiomatic 'Block'
+            by Frama-C kernel.
+
+--------------------------------------------------------------------------------
+--- Properties of Function 'slabel_ilev'
+--------------------------------------------------------------------------------
+
+[  Valid  ] Pre-condition (file with_sol.c, line 133)
+            by Call Preconditions.
+[  Valid  ] Post-condition (file with_sol.c, line 135)
+            by Wp.typed.
+[  Valid  ] Exit-condition (generated)
+            by Unreachable Annotations.
+[  Valid  ] Termination-condition (generated)
+            by Trivial Termination.
+[  Valid  ] Assigns nothing
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 139)
+            by Wp.typed.
+[  Valid  ] Default behavior
+            by Frama-C kernel.
+
+--------------------------------------------------------------------------------
+--- Properties of Function 'getCurrentLabel'
+--------------------------------------------------------------------------------
+
+[  Valid  ] Pre-condition (file with_sol.c, line 143)
+            by Call Preconditions.
+[  Valid  ] Pre-condition (file with_sol.c, line 144)
+            by Call Preconditions.
+[  Valid  ] Post-condition (file with_sol.c, line 146)
+            by Wp.typed.
+[  Valid  ] Exit-condition (generated)
+            by Unreachable Annotations.
+[  Valid  ] Termination-condition (generated)
+            by Trivial Termination.
+[  Valid  ] Assigns nothing
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 149)
+            by Wp.typed.
+[    -    ] Default behavior
+            tried with Frama-C kernel.
+
+--------------------------------------------------------------------------------
+--- Properties of Function 'file_inode'
+--------------------------------------------------------------------------------
+
+[  Valid  ] Pre-condition (file with_sol.c, line 123)
+            by Call Preconditions.
+[  Valid  ] Post-condition (file with_sol.c, line 125)
+            by Wp.typed.
+[  Valid  ] Exit-condition (generated)
+            by Unreachable Annotations.
+[  Valid  ] Termination-condition (generated)
+            by Trivial Termination.
+[  Valid  ] Assigns nothing
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 129)
+            by Wp.typed.
+[    -    ] Default behavior
+            tried with Frama-C kernel.
+
+--------------------------------------------------------------------------------
+--- Properties of Function 'compute_mask'
+--------------------------------------------------------------------------------
+
+[  Valid  ] Pre-condition (file with_sol.c, line 155)
+            by Call Preconditions.
+[  Valid  ] Pre-condition (file with_sol.c, line 156)
+            by Call Preconditions.
+[  Valid  ] Post-condition for 'file_is_public' (file with_sol.c, line 160)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'cmd_gt_important' (file with_sol.c, line 164)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'cmd_lt_exotic' (file with_sol.c, line 168)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'cmd_equal_event' (file with_sol.c, line 174)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'Default' (file with_sol.c, line 180)
+            by Wp.typed.
+[  Valid  ] Exit-condition (generated)
+            by Wp.typed.
+[  Valid  ] Termination-condition (generated)
+            by Wp.typed.
+[  Valid  ] Loop assigns (file with_sol.c, line 209)
+            by Wp.typed.
+[  Valid  ] Assigns nothing
+            by Wp.typed.
+[  Valid  ] Loop variant at loop (file with_sol.c, line 212)
+            by Wp.typed.
+[  Valid  ] Invariant (file with_sol.c, line 207)
+            by Wp.typed.
+[  Valid  ] Invariant (file with_sol.c, line 208)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 195)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,index_bound' (file with_sol.c, line 213)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,index_bound' (file with_sol.c, line 213)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,index_bound' (file with_sol.c, line 214)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,index_bound' (file with_sol.c, line 214)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,signed_overflow' (file with_sol.c, line 212)
+            by Wp.typed.
+[  Valid  ] Complete behaviors 'Default', 'cmd_equal_event',
+                               'cmd_gt_important', 'cmd_lt_exotic',
+                               'file_is_public'
+            by Wp.typed.
+[  Valid  ] Disjoint behaviors 'Default', 'cmd_equal_event',
+                               'cmd_gt_important', 'cmd_lt_exotic',
+                               'file_is_public'
+            by Wp.typed.
+[  Valid  ] Behavior 'Default'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'cmd_equal_event'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'cmd_gt_important'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'cmd_lt_exotic'
+            by Frama-C kernel.
+[  Valid  ] Default behavior
+            by Frama-C kernel.
+[  Valid  ] Behavior 'file_is_public'
+            by Frama-C kernel.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 123)' at initialization of 'inode' (file with_sol.c, line 187)
+
+            by Wp.typed.
+
+--------------------------------------------------------------------------------
+--- Properties of Function 'check_permission'
+--------------------------------------------------------------------------------
+
+[  Valid  ] Post-condition (file with_sol.c, line 232)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'no_label' (file with_sol.c, line 235)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'no_max_integrity_level' (file with_sol.c, line 239)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'is_root_can_read_and_write' (file with_sol.c, line 244)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'is_no_root_can_read_public' (file with_sol.c, line 250)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'is_no_root_can_read_exotic' (file with_sol.c, line 258)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'is_no_root_cant_read_important' (file with_sol.c, line 266)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'is_no_root_cant_read_cmd_event' (file with_sol.c, line 275)
+            by Wp.typed.
+[  Valid  ] Post-condition for 'Default' (file with_sol.c, line 284)
+            by Wp.typed.
+[  Valid  ] Exit-condition (generated)
+            by Wp.typed.
+[  Valid  ] Termination-condition (generated)
+            by Wp.typed.
+[  Valid  ] Assigns nothing
+            by Wp.typed.
+[  Valid  ] Assertion (file with_sol.c, line 292)
+            by Wp.typed.
+[  Valid  ] Assertion (file with_sol.c, line 299)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 311)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 311)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 315)
+            by Wp.typed.
+[  Valid  ] Assertion 'rte,mem_access' (file with_sol.c, line 315)
+            by Wp.typed.
+[  Valid  ] Complete behaviors 'Default', 'is_no_root_can_read_exotic',
+                               'is_no_root_can_read_public',
+                               'is_no_root_cant_read_cmd_event',
+                               'is_no_root_cant_read_important',
+                               'is_root_can_read_and_write', 'no_label',
+                               'no_max_integrity_level'
+            by Wp.typed.
+[  Valid  ] Disjoint behaviors 'Default', 'is_no_root_can_read_exotic',
+                               'is_no_root_can_read_public',
+                               'is_no_root_cant_read_cmd_event',
+                               'is_no_root_cant_read_important',
+                               'is_root_can_read_and_write', 'no_label',
+                               'no_max_integrity_level'
+            by Wp.typed.
+[  Valid  ] Behavior 'Default'
+            by Frama-C kernel.
+[  Valid  ] Default behavior
+            by Frama-C kernel.
+[  Valid  ] Behavior 'is_no_root_can_read_exotic'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'is_no_root_can_read_public'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'is_no_root_cant_read_cmd_event'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'is_no_root_cant_read_important'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'is_root_can_read_and_write'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'no_label'
+            by Frama-C kernel.
+[  Valid  ] Behavior 'no_max_integrity_level'
+            by Frama-C kernel.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 143)' at initialization of 'sl' (file with_sol.c, line 291)
+
+            by Wp.typed.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 144)' at initialization of 'sl' (file with_sol.c, line 291)
+
+            by Wp.typed.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 133)' at initialization of 'ilev' (file with_sol.c, line 298)
+
+            by Wp.typed.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 155)' at initialization of 'mask_final' (file with_sol.c, line 307)
+
+            by Wp.typed.
+[  Valid  ] Instance of 'Pre-condition (file with_sol.c, line 156)' at initialization of 'mask_final' (file with_sol.c, line 307)
+
+            by Wp.typed.
+
+--------------------------------------------------------------------------------
+--- Status Report Summary
+--------------------------------------------------------------------------------
+    84 Completely validated
+     2 To be validated
+    86 Total
+--------------------------------------------------------------------------------
+➜  Frama_c git:(main) ✗ 
