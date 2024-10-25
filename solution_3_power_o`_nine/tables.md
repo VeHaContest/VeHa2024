@@ -29,15 +29,14 @@ _Количество процессов_: 4
 
 
 ## Как работает код концептуально:   
-![Blank board(4)](https://github.com/user-attachments/assets/bff9aa9c-474f-49e3-a19f-f4dd4ced7326)
+<img src="img/5251271773847153002.jpg"/>
 
 ## UML диаграмма команд и отношений между сущностями:  
-![Blank diagram(4)](https://github.com/user-attachments/assets/47a1b2ba-cd0e-47a7-b880-4eb148e4eb80)
+<img src="img/5251271773847153001.jpg"/>
 
 # LEVEL 2:
 Мы постарались изобразить упрощённый концепт взаимодействия Warp на SM. Он представлен на диаграмме:
-![Blank board(5)](https://github.com/user-attachments/assets/b29133eb-7318-4b72-87c7-433ff8fd47d9)
+<img src="img/5251271773847153003.jpg"/>
 
 Вот UML:   
-![Blank board(6)](https://github.com/user-attachments/assets/954a722a-d543-4f11-a72c-14eb6e12d18c)
-
+<img src="img/5251271773847153004.jpg">
